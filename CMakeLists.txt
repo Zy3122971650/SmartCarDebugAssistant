@@ -23,9 +23,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmartCarQt
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        serialcom.h
-        socketcom.h socketcom.cpp smartcarvisual.ui smartcarvisual.h smartcarvisual.cpp serialcom.h serialcom.cpp main.cpp
-        fram.h fram.cpp
+         smartcarvisual.ui smartcarvisual.h smartcarvisual.cpp main.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET SmartCarQt APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
