@@ -27,6 +27,12 @@ class SmartCarVisual : public QMainWindow {
 
   void on_communicationSend_clicked();
 
+  void updateRecieveBrower(const QByteArray &data);
+
+  void on_pushButton_3_clicked();
+
+  void on_pushButton_4_clicked();
+
   private:
   Ui::SmartCarVisual *ui;
   Communication::communication_hal *communication;

@@ -87,7 +87,14 @@
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <layout class="QVBoxLayout" name="verticalLayout_13">
+              <item>
+               <widget class="QCheckBox" name="communicationSendHex">
+                <property name="text">
+                 <string>hex</string>
+                </property>
+               </widget>
+              </item>
               <item>
                <widget class="QLineEdit" name="lineEdit"/>
               </item>
@@ -591,7 +598,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_10">
+       <widget class="QLabel" name="sendCount">
         <property name="text">
          <string>0</string>
         </property>
@@ -611,7 +618,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_12">
+       <widget class="QLabel" name="reciveCount">
         <property name="text">
          <string>0</string>
         </property>
@@ -730,7 +737,7 @@
          <string>打开连接</string>
         </property>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>10</x>

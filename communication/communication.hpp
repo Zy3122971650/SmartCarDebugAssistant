@@ -20,10 +20,12 @@ struct Data {
   QVector<struct Frame> points;
 };
 
-class communication_hal : QObject {
+class communication_hal : public QObject {
   Q_OBJECT
  private slots:
   void callbackReadyDataSlot();
+ signals:
+  void communicationRecieve(const QByteArray &data);
 
  public:
   // 理论上要作为私有变量保护，但是快速开发没办法啦

@@ -41,7 +41,11 @@ void communication_hal::close() {
 
 void communication_hal::callbackReadyDataSlot() {
   qDebug() << "数据准备好了";
-  qDebug() << "数据是：" << this->serial_port->readAll();
+  QByteArray data = this->serial_port->readAll();
+  qDebug() << "数据是：" << data;
+
+  // TODO: 设计一个信号，把数据传递到显示窗口
+  emit communicationRecieve(data);
 }
 communication_hal::communication_hal() {
   this->socket_port = nullptr;

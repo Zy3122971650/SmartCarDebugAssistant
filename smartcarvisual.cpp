@@ -9,6 +9,9 @@ SmartCarVisual::SmartCarVisual(QWidget *parent)
   ui->setupUi(this);
 
   this->communication = new Communication::communication_hal();
+  connect(this->communication,
+          &Communication::communication_hal::communicationRecieve, this,
+          &SmartCarVisual::updateRecieveBrower);
 }
 
 SmartCarVisual::~SmartCarVisual() {
@@ -80,7 +83,94 @@ void SmartCarVisual::on_communicationSend_clicked() {
     if (s.isEmpty()) {
       return;
     }
-    auto buff = s.toLocal8Bit();
+
+    auto buff = QByteArray();
+    if (this->ui->communicationSendHex->isChecked()) {
+      QString n = QString();
+      // 读取所有字符，找到`0x`全部去掉，找到a-f以外的字符全部当错误处理，剩下的两个两个组成一个16进制数
+      for (int i = 0; i < s.length(); i++) {
+        QChar c = s[i].toLower();
+        if ((c >= 'a' && c <= 'f') || (c >= '0' && c <= '9')) {
+          n.append(c);
+        }
+      }
+
+      if (n.length() % 2 != 0) {
+        // 不是双数说明格式有问题
+        return;
+      }
+
+      for (int i = 0; i < n.length(); i += 2) {
+        QString byteString = n.mid(i, 2);
+        bool ok;
+        char byteValue = byteString.toInt(&ok, 16);
+        if (ok) {
+          buff.append(byteValue);
+        } else {
+          // 错误处理，无法转换为有效的十六进制值
+          return;
+        }
+      }
+    } else {
+      buff = s.toLocal8Bit();
+    }
     this->communication->write(buff);
+    this->ui->communicationSendText->clear();
+    QString n = QString();
+    if (this->ui->communicationSendHex->isChecked()) {
+      for (int i = 0; i < buff.size(); i++) {
+        n.append(QString("0x%1").arg(static_cast<unsigned char>(buff[i]), 2, 16,
+                                     QChar('0')));
+
+        if (i < buff.size() - 1) {
+          n.append(" ");
+        }
+      }
+    } else {
+      for (int i = 0; i < buff.size(); i++) {
+        n.append(QChar(static_cast<unsigned char>(buff[i])));
+
+        if (i < buff.size() - 1) {
+          n.append(" ");
+        }
+      }
+    }
+    this->ui->communicationSendBrower->append(n);
+    this->ui->sendCount->setText(
+        QString::number(this->ui->sendCount->text().toInt() + buff.length()));
   }
+}
+
+void SmartCarVisual::updateRecieveBrower(const QByteArray &data) {
+  QString n = QString();
+
+  if (this->ui->communicationSendHex->isChecked()) {
+    for (int i = 0; i < data.size(); i++) {
+      n.append(QString("0x%1").arg(static_cast<unsigned char>(data[i]), 2, 16,
+                                   QChar('0')));
+
+      if (i < data.size() - 1) {
+        n.append(" ");
+      }
+    }
+  } else {
+    for (int i = 0; i < data.size(); i++) {
+      n.append(QChar(static_cast<unsigned char>(data[i])));
+
+      if (i < data.size() - 1) {
+        n.append(" ");
+      }
+    }
+  }
+  this->ui->communicationReciveBrower->append(n);
+  this->ui->reciveCount->setText(
+      QString::number(this->ui->sendCount->text().toInt() + data.length()));
+}
+
+void SmartCarVisual::on_pushButton_3_clicked() {
+  this->ui->communicationSendBrower->clear();
+}
+
+void SmartCarVisual::on_pushButton_4_clicked() {
+  this->ui->communicationReciveBrower->clear();
 }
