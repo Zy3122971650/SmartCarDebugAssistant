@@ -13,6 +13,9 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="cursor">
+   <cursorShape>ArrowCursor</cursorShape>
+  </property>
   <property name="windowTitle">
    <string>SmartCarVisual</string>
   </property>
@@ -27,7 +30,7 @@
        <enum>QTabWidget::West</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -137,14 +140,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_14">
             <item>
-             <widget class="QCheckBox" name="checkBox">
+             <widget class="QCheckBox" name="pointData1">
               <property name="text">
                <string>Data1</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_18">
+             <widget class="QLabel" name="pointShow1">
               <property name="minimumSize">
                <size>
                 <width>60</width>
@@ -161,14 +164,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_15">
             <item>
-             <widget class="QCheckBox" name="checkBox_2">
+             <widget class="QCheckBox" name="pointData2">
               <property name="text">
                <string>Data2</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_19">
+             <widget class="QLabel" name="pointShow2">
               <property name="text">
                <string>0</string>
               </property>
@@ -179,14 +182,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_16">
             <item>
-             <widget class="QCheckBox" name="checkBox_3">
+             <widget class="QCheckBox" name="pointData3">
               <property name="text">
                <string>Data3</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_20">
+             <widget class="QLabel" name="pointShow3">
               <property name="text">
                <string>0</string>
               </property>
@@ -197,14 +200,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_17">
             <item>
-             <widget class="QCheckBox" name="checkBox_4">
+             <widget class="QCheckBox" name="pointData4">
               <property name="text">
                <string>Data4</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_21">
+             <widget class="QLabel" name="pointShow4">
               <property name="text">
                <string>0</string>
               </property>
@@ -215,14 +218,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_18">
             <item>
-             <widget class="QCheckBox" name="checkBox_5">
+             <widget class="QCheckBox" name="pointData5">
               <property name="text">
                <string>Data5</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_22">
+             <widget class="QLabel" name="pointShow5">
               <property name="text">
                <string>0</string>
               </property>
@@ -233,14 +236,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_19">
             <item>
-             <widget class="QCheckBox" name="checkBox_6">
+             <widget class="QCheckBox" name="pointData6">
               <property name="text">
                <string>Data6</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_23">
+             <widget class="QLabel" name="pointShow6">
               <property name="text">
                <string>0</string>
               </property>
@@ -251,14 +254,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_20">
             <item>
-             <widget class="QCheckBox" name="checkBox_7">
+             <widget class="QCheckBox" name="pointData7">
               <property name="text">
                <string>Data7</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_24">
+             <widget class="QLabel" name="pointShow7">
               <property name="text">
                <string>0</string>
               </property>
@@ -269,14 +272,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_21">
             <item>
-             <widget class="QCheckBox" name="checkBox_8">
+             <widget class="QCheckBox" name="pointData8">
               <property name="text">
                <string>Data8</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_25">
+             <widget class="QLabel" name="pointShow8">
               <property name="text">
                <string>0</string>
               </property>
@@ -287,14 +290,14 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_22">
             <item>
-             <widget class="QCheckBox" name="checkBox_9">
+             <widget class="QCheckBox" name="pointData9">
               <property name="text">
                <string>Data9</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_26">
+             <widget class="QLabel" name="pointShow9">
               <property name="text">
                <string>0</string>
               </property>
@@ -305,7 +308,14 @@
          </layout>
         </item>
         <item row="0" column="2">
-         <widget class="QGraphicsView" name="graphicsView"/>
+         <widget class="CustomGraphicsView" name="pointsDrawView" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="1" column="1" colspan="2">
          <widget class="QScrollBar" name="horizontalScrollBar">
@@ -392,7 +402,7 @@
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="2" column="0">
-         <widget class="QSlider" name="horizontalSlider">
+         <widget class="QSlider" name="imgSlider">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -496,50 +506,43 @@
            </widget>
           </widget>
           <widget class="QWidget" name="page_3">
-           <widget class="QWidget" name="layoutWidget_4">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>0</y>
-              <width>322</width>
-              <height>261</height>
-             </rect>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_11">
-             <item>
-              <widget class="QLabel" name="label_16">
-               <property name="text">
-                <string>原图混合</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QGraphicsView" name="graphicsView_6"/>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="layoutWidget_5">
-            <property name="geometry">
-             <rect>
-              <x>390</x>
-              <y>0</y>
-              <width>322</width>
-              <height>261</height>
-             </rect>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_12">
-             <item>
-              <widget class="QLabel" name="label_17">
-               <property name="text">
-                <string>log</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QTextBrowser" name="textBrowser_3"/>
-             </item>
-            </layout>
-           </widget>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <layout class="QVBoxLayout" name="verticalLayout_11">
+              <item>
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>原图混合</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QGraphicsView" name="graphicsView_0">
+                <property name="minimumSize">
+                 <size>
+                  <width>160</width>
+                  <height>120</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="0" column="1">
+             <layout class="QVBoxLayout" name="verticalLayout_12">
+              <item>
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>log</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTextBrowser" name="textBrowser_3"/>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </widget>
          </widget>
         </item>
@@ -553,10 +556,10 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_2"/>
+           <widget class="QLineEdit" name="ImgCurrent"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_3"/>
+           <widget class="QLineEdit" name="imgTotal"/>
           </item>
          </layout>
         </item>
@@ -641,7 +644,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="serial">
        <attribute name="title">
@@ -813,7 +816,7 @@
               </size>
              </property>
              <property name="text">
-              <string>202419</string>
+              <string>2419</string>
              </property>
             </widget>
            </item>
@@ -860,6 +863,13 @@
    </attribute>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomGraphicsView</class>
+   <extends>QWidget</extends>
+   <header>customgraphicsview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

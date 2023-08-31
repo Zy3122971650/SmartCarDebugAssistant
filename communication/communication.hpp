@@ -15,9 +15,9 @@ enum ConnectType {
 };
 
 struct Data {
-  QVector<struct Frame> img;
-  QVector<struct Frame> img_points;
-  QVector<struct Frame> points;
+  QVector<struct FrameImg> img;
+  QVector<float> *img_points;
+  QVector<float> *points;
 };
 
 class communication_hal : public QObject {
@@ -26,10 +26,11 @@ class communication_hal : public QObject {
   void callbackReadyDataSlot();
  signals:
   void communicationRecieve(const QByteArray &data);
+  void frameDecodeFinished(void);
 
  public:
   // 理论上要作为私有变量保护，但是快速开发没办法啦
-  struct Data data;
+  QVector<struct Data> data;
   enum ConnectType connect_type;
   QSerialPort *serial_port;
   QTcpSocket *socket_port;

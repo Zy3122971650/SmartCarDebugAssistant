@@ -15,12 +15,17 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets SerialPort Networ
 aux_source_directory(./communication COMMUNICATION)
 include_directories(./communication)
 
+aux_source_directory(./draw DRAW)
+include_directories(./draw)
+
+
 set(PROJECT_SOURCES
         main.cpp
         smartcarvisual.cpp
         smartcarvisual.h
         smartcarvisual.ui
         ${COMMUNICATION}
+        ${DRAW}
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -42,8 +47,6 @@ else()
     else()
         add_executable(SmartCarQt
             ${PROJECT_SOURCES}
-            serialcom.h serialcom.cpp
-            socketcom.h socketcom.cpp
         )
     endif()
 endif()
