@@ -212,13 +212,11 @@ void SmartCarVisual::on_pushButton_4_clicked() {
 }
 
 void SmartCarVisual::updateViewDraw() {
-  qDebug() << "触发";
   this->update_img(true);
   this->ui->pointsDrawView->update_points();
 }
 
 void SmartCarVisual::update_img(bool current) {
-  blockSignals(true);
   // 绘制的时候要阻断信号传播，当成一个原子操作
   // 根据data中的数据更新总图片个数
   auto total = this->communication->data.length();
@@ -232,7 +230,6 @@ void SmartCarVisual::update_img(bool current) {
   if (current) this->ui->imgSlider->setValue(total - 1);
   // 绘制对应数据到图框(从滑动条得到index,滑动条只能被串口来的回调更新)
   auto index = this->ui->imgSlider->value();
-  qDebug() << total;
   auto datas = this->communication->data[index].img;
   // 解析帧
   foreach (auto frame, datas) {
@@ -242,7 +239,6 @@ void SmartCarVisual::update_img(bool current) {
     switch (draw_index) {
       case 0:
         // 清除上一刻的场景
-        qDebug() << "在图一绘制";
         if (!this->ui->graphicsView_0->scene()) {
           delete this->ui->graphicsView_0->scene();
         }
@@ -254,11 +250,12 @@ void SmartCarVisual::update_img(bool current) {
         break;
     }
   }
-  blockSignals(false);
 }
 void SmartCarVisual::on_imgSlider_valueChanged(int value) {
+  blockSignals(true);
   this->ui->ImgCurrent->setText(QString::number(value + 1));
   update_img(false);
+  blockSignals(false);
 }
 
 void SmartCarVisual::on_tabWidget_currentChanged(int index) {

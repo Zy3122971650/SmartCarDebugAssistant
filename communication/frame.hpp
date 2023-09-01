@@ -18,6 +18,7 @@ struct Frame {
 enum ImgType {
   ImgTypeUnknow = 0,
   ImgTypePng,
+  ImgTypeRgb,
 };
 
 enum FrameType {

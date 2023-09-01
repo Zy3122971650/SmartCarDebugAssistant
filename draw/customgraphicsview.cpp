@@ -143,7 +143,6 @@ void CustomGraphicsView::update_points() {
   // }
   // 绘制
   // 加载scene
-  qDebug() << "2333";
 
   waveform1 = scene->addPath(Path1, pen1);
   waveform2 = scene->addPath(Path2, pen2);

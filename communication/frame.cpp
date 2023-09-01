@@ -1,5 +1,5 @@
 #include "frame.hpp"
-
+// todo： 重新设计存储方案
 bool Communication::decode(QByteArray &buff, QVector<struct Data> &data) {
   static bool isHeader = false;
   static uint8_t id = 0;
@@ -20,13 +20,13 @@ bool Communication::decode(QByteArray &buff, QVector<struct Data> &data) {
       case 0:
         // 包序号
         // 预添加数据
-        if ((data.length()==0)||(id != u8)) {
+        // 好像有bug在波形显示的地方表现出来了
+        if ((data.length() == 0) || (id != u8)) {
           id = u8;
           struct Data t;
           t.points = nullptr;
           data.append(t);
         }
-
         ++status;
         break;
       case 1:
@@ -145,7 +145,18 @@ struct Communication::FrameImg Communication::decode_img(
   frame_img.draw_id = data[0];
   uint8_t img_type = data[1];  // TODO: 暂时自动配置
   QImage image;
-  image.loadFromData(&data[2], data.length() - 1, nullptr);
+
+  switch (img_type) {
+    case ImgTypePng:
+      image.loadFromData(&data[2], data.length() - 1, nullptr);
+      break;
+    case ImgTypeRgb:
+      // todo: 更新帧协议
+      image = QImage(&data[2], 640, 480, QImage::Format_RGB888);
+      break;
+    default:
+      break;
+  }
   QPixmap pixmap = QPixmap::fromImage(image);
   frame_img.item = new QGraphicsPixmapItem(pixmap);
   return frame_img;
@@ -155,7 +166,6 @@ bool Communication::decode_img_points(uint8_t data, struct Frame &result) {}
 
 QVector<float> *Communication::decode_points(QVector<uint8_t> &data) {
   // TODO: 这里需要确定大小端，好的做法是：先确定大小端，然后对每组数据取反
-  qDebug() << data;
   QVector<float> *f = new QVector<float>;
   f->append(*(float *)&data[0]);
   f->append(*(float *)&data[4]);
@@ -166,7 +176,6 @@ QVector<float> *Communication::decode_points(QVector<uint8_t> &data) {
   f->append(*(float *)&data[24]);
   f->append(*(float *)&data[28]);
   f->append(*(float *)&data[32]);
-  qDebug() << "??" << *f;
   return f;
 }
 

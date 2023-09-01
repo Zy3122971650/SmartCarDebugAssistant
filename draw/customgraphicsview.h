@@ -19,7 +19,7 @@ class CustomGraphicsView : public QGraphicsView {
  public:
   CustomGraphicsView(QWidget *parent = nullptr) : QGraphicsView(parent) {}
   qreal x_factor = 10.0;
-  qreal y_factor = 10.0;
+  qreal y_factor = 1.0;
   int scoll_max = 0;
   qreal view_x = 0;
   qreal view_y = 0;
@@ -85,30 +85,19 @@ class CustomGraphicsView : public QGraphicsView {
       // 当鼠标左键按住并移动时执行的操作
       QPoint currentPosition = event->pos();
       QPoint delta = currentPosition - initialPosition;
-      // qDebug() << delta;
-      qDebug() << this->view_x;
-      qDebug() << this->view_y;
-
       this->view_x -= delta.x();
       this->view_y -= delta.y();
-      qDebug() << this->view_x;
-      qDebug() << this->view_y;
-
       initialPosition = currentPosition;
-      qreal x = this->view_x;
-      qreal y = this->view_y;
       this->update_points();
-      this->view_x = x;
-      this->view_y = y;
       this->update_view_port();
     } else {
       // 获取位置，计算对应的实际x轴位置
-      qreal temp = (this->view_x + this->pos().x()) / this->x_factor;
-      if (temp < 0) {
-        temp = 0;
-      }
-      this->point_show_id = temp;
-      emit showPointValueLable();
+      // qreal temp = (this->view_x + this->pos().x()) / this->x_factor;
+      // if (temp < 0) {
+      //   temp = 0;
+      // }
+      // this->point_show_id = temp;
+      // emit showPointValueLable();
     }
 
     QWidget::mouseMoveEvent(event);
