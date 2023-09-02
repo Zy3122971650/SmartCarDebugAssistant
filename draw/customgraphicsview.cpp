@@ -127,7 +127,21 @@ void CustomGraphicsView::update_points() {
     if (temp.first() < y_min_global) {
       y_min_global = temp.first();
     }
-    if (i % 10 == 0) {
+    if (this->data->length() < 200 && i % 10 == 0) {
+      QGraphicsTextItem *tickLabel = scene->addText(QString::number(i));
+      tickLabel->setPos(i * this->x_factor, 5);  // 调整刻度值位置
+    }
+    if (200 < this->data->length() && this->data->length() < 1000 &&
+        i % 50 == 0) {
+      QGraphicsTextItem *tickLabel = scene->addText(QString::number(i));
+      tickLabel->setPos(i * this->x_factor, 5);  // 调整刻度值位置
+    }
+    if (1000 < this->data->length() && this->data->length() < 2000 &&
+        i % 100 == 0) {
+      QGraphicsTextItem *tickLabel = scene->addText(QString::number(i));
+      tickLabel->setPos(i * this->x_factor, 5);  // 调整刻度值位置
+    }
+    if (2000 < this->data->length() && i % 500 == 0) {
       QGraphicsTextItem *tickLabel = scene->addText(QString::number(i));
       tickLabel->setPos(i * this->x_factor, 5);  // 调整刻度值位置
     }
