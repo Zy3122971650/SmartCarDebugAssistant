@@ -388,7 +388,10 @@ void SmartCarVisual::clean_data() {
 
 void SmartCarVisual::update_data_label(void) {
   if (this->ui->pointsDrawView->point_show_id <
-      this->ui->pointsDrawView->data->length()) {
+          this->ui->pointsDrawView->data->length() &&
+      this->ui->pointsDrawView->data
+              ->at(this->ui->pointsDrawView->point_show_id)
+              .points != nullptr) {
     this->ui->pointShow1->setText(
         QString::number(this->ui->pointsDrawView->data
                             ->at(this->ui->pointsDrawView->point_show_id)

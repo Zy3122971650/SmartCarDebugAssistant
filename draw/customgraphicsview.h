@@ -66,8 +66,6 @@ class CustomGraphicsView : public QGraphicsView {
       initialPosition = event->pos();
       isMousePressed = true;
     }
-
-    QWidget::mousePressEvent(event);
   }
   void keyPressEvent(QKeyEvent *event) override {
     if (event->key() == Qt::Key_Control) {
@@ -92,15 +90,13 @@ class CustomGraphicsView : public QGraphicsView {
       this->update_view_port();
     } else {
       // 获取位置，计算对应的实际x轴位置
-      // qreal temp = (this->view_x + this->pos().x()) / this->x_factor;
-      // if (temp < 0) {
-      //   temp = 0;
-      // }
-      // this->point_show_id = temp;
-      // emit showPointValueLable();
+      qreal temp = (this->view_x + event->pos().x()) / this->x_factor;
+      if (temp < 0) {
+        temp = 0;
+      }
+      this->point_show_id = temp;
+      emit showPointValueLable();
     }
-
-    QWidget::mouseMoveEvent(event);
   }
 
   void mouseReleaseEvent(QMouseEvent *event) override {
@@ -108,7 +104,5 @@ class CustomGraphicsView : public QGraphicsView {
       // 当鼠标左键释放时执行的操作
       isMousePressed = false;
     }
-
-    QWidget::mouseReleaseEvent(event);
   }
 };
