@@ -15,15 +15,20 @@ class CustomGraphicsView : public QGraphicsView {
   Q_OBJECT
  signals:
   void showPointValueLable(void);
+  void updateShowPointScroll(void);
 
  public:
-  CustomGraphicsView(QWidget *parent = nullptr) : QGraphicsView(parent) {}
+  CustomGraphicsView(QWidget *parent = nullptr) : QGraphicsView(parent) {
+    this->setMouseTracking(true);
+  }
   qreal x_factor = 10.0;
   qreal y_factor = 1.0;
   int scoll_max = 0;
   qreal view_x = 0;
   qreal view_y = 0;
-  QVector<struct Data> *data;
+  qreal mouse_pos_x = 0;
+  uint32_t scoll_current = 0;
+  struct Data *data;
   QPoint initialPosition;
   bool isMousePressed = false;
   bool isCtrlPressed = false;
@@ -86,15 +91,10 @@ class CustomGraphicsView : public QGraphicsView {
       this->view_x -= delta.x();
       this->view_y -= delta.y();
       initialPosition = currentPosition;
-      this->update_points();
-      this->update_view_port();
+      emit updateShowPointScroll();
     } else {
       // 获取位置，计算对应的实际x轴位置
-      qreal temp = (this->view_x + event->pos().x()) / this->x_factor;
-      if (temp < 0) {
-        temp = 0;
-      }
-      this->point_show_id = temp;
+      mouse_pos_x = event->pos().x();
       emit showPointValueLable();
     }
   }

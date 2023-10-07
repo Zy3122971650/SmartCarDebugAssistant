@@ -14,12 +14,6 @@ enum ConnectType {
   Socket,
 };
 
-struct Data {
-  QVector<struct FrameImg> img;
-  QVector<float> *img_points;
-  QVector<float> *points;
-};
-
 class communication_hal : public QObject {
   Q_OBJECT
  private slots:
@@ -30,7 +24,7 @@ class communication_hal : public QObject {
 
  public:
   // 理论上要作为私有变量保护，但是快速开发没办法啦
-  QVector<struct Data> data;
+  struct Data data;
   enum ConnectType connect_type;
   QSerialPort *serial_port;
   QTcpSocket *socket_port;

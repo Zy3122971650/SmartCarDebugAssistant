@@ -71,7 +71,7 @@ void communication_hal::callbackReadyDataSlot() {
   }
 
   // qDebug() << "数据是：" << data;
-  if (decode(data, this->data)) {
+  if (decode(data, &this->data)) {
     emit frameDecodeFinished();
   }
   // TODO: 设计一个信号，把数据传递到显示窗口
@@ -83,6 +83,8 @@ communication_hal::communication_hal() {
   this->socket_port = nullptr;
   this->serial_port = nullptr;
   this->connect_type = ConnectType::Serial;
+  struct Data data;
+  this->data = data;
 }
 communication_hal::~communication_hal() {}
 void communication_hal::write(QByteArray &buff) {

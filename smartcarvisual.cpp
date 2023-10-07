@@ -47,6 +47,8 @@ SmartCarVisual::SmartCarVisual(QWidget *parent)
           &SmartCarVisual::updateViewDraw);
   connect(this->ui->pointsDrawView, &CustomGraphicsView::showPointValueLable,
           this, &SmartCarVisual::update_data_label);
+  connect(this->ui->pointsDrawView, &CustomGraphicsView::updateShowPointScroll,
+          this, &SmartCarVisual::update_pointScroll);
 }
 
 SmartCarVisual::~SmartCarVisual() {
@@ -211,32 +213,62 @@ void SmartCarVisual::on_pushButton_4_clicked() {
   this->ui->communicationReciveBrower->clear();
 }
 
+// Tab切换
+void SmartCarVisual::on_tabWidget_currentChanged(int index) {
+  if (index == 3) {
+    update_img(false);
+  } else if (index == 1) {
+    point_draw_update(false);
+  }
+}
+
+// 由通信部分的信号触发
 void SmartCarVisual::updateViewDraw() {
-  this->update_img(true);
-  this->ui->pointsDrawView->update_points();
+  if (this->ui->tabWidget->currentIndex() == 3) {
+    this->update_img(true);
+  } else if (this->ui->tabWidget->currentIndex() == 1) {
+    this->ui->pointsDrawView->update_points();
+    this->ui->horizontalScrollBar->setMaximum(
+        this->ui->pointsDrawView->scoll_max);
+    this->ui->horizontalScrollBar->setMinimum(0);
+
+    this->ui->horizontalScrollBar->setValue(
+        this->ui->pointsDrawView->scoll_max);
+  }
 }
 
 void SmartCarVisual::update_img(bool current) {
+  blockSignals(true);  // 防止更新进度条的时候触发信号
   // 绘制的时候要阻断信号传播，当成一个原子操作
   // 根据data中的数据更新总图片个数
-  auto total = this->communication->data.length();
+  auto total = this->communication->data.img.length();
+  this->ui->imgTotal->setText(QString::number(total));
+
   if (!total) {
+    this->ui->imgSlider->setMinimum(0);
+    this->ui->imgSlider->setMaximum(0);
+    this->ui->imgSlider->setValue(0);
+    this->ui->ImgCurrent->setText(
+        QString::number(this->ui->imgSlider->value()));
+
     return;
   }
-  this->ui->imgTotal->setText(QString::number(total));
   // 根据data中的数据更新滑动条
-  this->ui->imgSlider->setMaximum(total - 1);
+  this->ui->imgSlider->setMinimum(1);
+  this->ui->imgSlider->setMaximum(total);
 
-  if (current) this->ui->imgSlider->setValue(total - 1);
-  // 绘制对应数据到图框(从滑动条得到index,滑动条只能被串口来的回调更新)
-  auto index = this->ui->imgSlider->value();
-  auto datas = this->communication->data[index].img;
+  if (current) this->ui->imgSlider->setValue(total);
+  this->ui->ImgCurrent->setText(QString::number(this->ui->imgSlider->value()));
+
+  // // 绘制对应数据到图框(从滑动条得到index,滑动条只能被串口来的回调更新)
+  auto index = this->ui->imgSlider->value() - 1;
+  auto datas = this->communication->data.img.at(index);
   // 解析帧
   foreach (auto frame, datas) {
     // 绘制图号
     auto draw_index = frame.draw_id;
     // 0 原图混合
-    switch (draw_index) {
+    switch (draw_index) {  // TODO: 使用ENUM代替魔法数字
       case 0:
         // 清除上一刻的场景
         if (!this->ui->graphicsView_0->scene()) {
@@ -248,44 +280,82 @@ void SmartCarVisual::update_img(bool current) {
           this->ui->graphicsView_0->setScene(scene);
         }
         break;
+      case 5:
+        // 清除上一刻的场景
+        if (!this->ui->graphicsView_5->scene()) {
+          delete this->ui->graphicsView_5->scene();
+        }
+        {
+          QGraphicsScene *scene = new QGraphicsScene();
+          scene->addItem(frame.item);
+          this->ui->graphicsView_5->setScene(scene);
+        }
+
+        break;
+      case 8:
+        // 清除上一刻的场景
+        if (!this->ui->graphicsView_8->scene()) {
+          delete this->ui->graphicsView_8->scene();
+        }
+        {
+          QGraphicsScene *scene = new QGraphicsScene();
+          scene->addItem(frame.item);
+          this->ui->graphicsView_8->setScene(scene);
+        }
+        break;
+    }
+  }
+  blockSignals(false);
+}
+void SmartCarVisual::on_imgSlider_valueChanged(int value) { update_img(false); }
+
+void SmartCarVisual::on_ImgCurrent_editingFinished() {
+  auto index = this->ui->ImgCurrent->text().toInt();
+  auto max = this->ui->imgSlider->maximum();
+  auto min = this->ui->imgSlider->minimum();
+  if (min <= index && index <= max) {
+    this->ui->imgSlider->setValue(index);
+    // 这里会触发imgSlider的value信号
+  } else {
+    if (index < min) {
+      this->ui->imgSlider->setValue(min);
+    } else {
+      this->ui->imgSlider->setValue(max);
     }
   }
 }
-void SmartCarVisual::on_imgSlider_valueChanged(int value) {
-  blockSignals(true);
-  this->ui->ImgCurrent->setText(QString::number(value + 1));
-  update_img(false);
-  blockSignals(false);
-}
-
-void SmartCarVisual::on_tabWidget_currentChanged(int index) {
-  if (index == 3) {
-    update_img(false);
-  } else if (index == 1) {
-    this->ui->pointsDrawView->update_points();
-    this->ui->pointsDrawView->view_x = 0;
-    this->ui->pointsDrawView->view_y = -this->ui->pointsDrawView->height() / 2;
-  }
-}
-
-void SmartCarVisual::on_ImgCurrent_editingFinished() {
-  this->ui->imgSlider->setValue(this->ui->ImgCurrent->text().toInt() - 1);
-}
 
 void SmartCarVisual::on_horizontalScrollBar_valueChanged(int value) {
-  this->ui->horizontalScrollBar->setMaximum(
-      this->ui->pointsDrawView->scoll_max);
-
-  //
   this->ui->pointsDrawView->view_x = this->ui->horizontalScrollBar->value();
-  this->ui->pointsDrawView->update_view_port();
-}
-
-void SmartCarVisual::point_draw_update() {
-  this->ui->pointsDrawView->update_points();
+  this->point_draw_update(false);
 }
 
 // 波形绘制GUI部分响应
+void SmartCarVisual::point_draw_update(bool current) {
+  this->ui->pointsDrawView->update_points();
+  update_data_label();
+
+  blockSignals(true);
+  if (this->ui->pointsDrawView->scoll_max != 0) {
+    this->ui->horizontalScrollBar->setMinimum(0);
+    this->ui->horizontalScrollBar->setMaximum(
+        this->ui->pointsDrawView->scoll_max);
+  } else {
+    this->ui->horizontalScrollBar->setMinimum(0);
+    this->ui->horizontalScrollBar->setMaximum(0);
+    this->ui->horizontalScrollBar->setValue(0);
+    return;
+  }
+  if (current) {
+    this->ui->horizontalScrollBar->setValue(
+        this->ui->pointsDrawView->scoll_max);
+    this->ui->pointsDrawView->view_x = this->ui->pointsDrawView->scoll_max;
+  }
+  this->ui->horizontalScrollBar->setValue(this->ui->pointsDrawView->view_x);
+  blockSignals(false);
+}
+
+void SmartCarVisual::update_pointScroll() { this->point_draw_update(false); }
 void SmartCarVisual::on_pointData1_stateChanged(int arg1) {
   this->ui->pointsDrawView->visual1 = arg1;
   auto wave = this->ui->pointsDrawView->waveform1;
@@ -371,62 +441,74 @@ void SmartCarVisual::on_pointData9_stateChanged(int arg1) {
 
 void SmartCarVisual::on_pushButton_5_clicked() { clean_data(); }
 
+// 清理数据
 void SmartCarVisual::clean_data() {
-  // 清除所有数据
-  // 遍历所有数据
-  foreach (auto frame, this->communication->data) {
-    // 清理图片
-    foreach (auto img, frame.img) {
-      delete img.item;
+  // 图像部分
+  foreach (auto group, this->communication->data.img) {
+    foreach (auto frame, group) {
+      delete frame.item;
     }
-    // 清理全部波形绘制point
-    delete frame.points;
   }
-  this->communication->data.clear();
-  updateViewDraw();
+  communication->data.img.clear();
+  this->update_img(true);
+  // 波形绘制部分
+  this->communication->data.points.clear();
+  this->point_draw_update(true);
 }
 
 void SmartCarVisual::update_data_label(void) {
+  qreal temp = (this->ui->pointsDrawView->view_x +
+                this->ui->pointsDrawView->mouse_pos_x) /
+               this->ui->pointsDrawView->x_factor;
+  this->ui->pointsDrawView->point_show_id = round(temp);
+
   if (this->ui->pointsDrawView->point_show_id <
-          this->ui->pointsDrawView->data->length() &&
-      this->ui->pointsDrawView->data
-              ->at(this->ui->pointsDrawView->point_show_id)
-              .points != nullptr) {
+      this->ui->pointsDrawView->data->points.length()) {
     this->ui->pointShow1->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(0)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(0)));
     this->ui->pointShow2->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(1)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(1)));
     this->ui->pointShow3->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(2)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(2)));
     this->ui->pointShow4->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(3)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(3)));
     this->ui->pointShow5->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(4)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(4)));
     this->ui->pointShow6->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(5)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(5)));
     this->ui->pointShow7->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(6)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(6)));
     this->ui->pointShow8->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(7)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(7)));
     this->ui->pointShow9->setText(
-        QString::number(this->ui->pointsDrawView->data
-                            ->at(this->ui->pointsDrawView->point_show_id)
-                            .points->at(8)));
+        QString::number(this->ui->pointsDrawView->data->points
+                            .at(this->ui->pointsDrawView->point_show_id)
+                            .at(8)));
+  }
+}
+
+void SmartCarVisual::on_pushButton_7_clicked() {
+  auto current = this->ui->stackedWidget->currentIndex();
+  ++current;
+  if (current >= 3) {
+    this->ui->stackedWidget->setCurrentIndex(0);
+  } else {
+    this->ui->stackedWidget->setCurrentIndex(current);
   }
 }

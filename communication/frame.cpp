@@ -1,6 +1,6 @@
 #include "frame.hpp"
 // todo： 重新设计存储方案
-bool Communication::decode(QByteArray &buff, QVector<struct Data> &data) {
+bool Communication::decode(QByteArray &buff, struct Data *data) {
   static bool isHeader = false;
   static uint8_t id = 0;
   static uint8_t frameType = 0;
@@ -19,14 +19,11 @@ bool Communication::decode(QByteArray &buff, QVector<struct Data> &data) {
     switch (status) {
       case 0:
         // 包序号
-        // 预添加数据
-        // 好像有bug在波形显示的地方表现出来了
-        if ((data.length() == 0) || (id != u8)) {
-          id = u8;
-          struct Data t;
-          t.points = nullptr;
-          data.append(t);
-        }
+        if (id != u8 || data->img.length() == 0) {
+          QVector<FrameImg> t;
+          data->img.append(t);
+        };
+        id = u8;
         ++status;
         break;
       case 1:
@@ -98,10 +95,10 @@ bool Communication::decode(QByteArray &buff, QVector<struct Data> &data) {
         if (status == 5) {
           switch (frameType) {
             case FrameType::FrameTypeImg:
-              data.last().img.append(decode_img(frameData));
+              data->img.last().append(decode_img(frameData));
               break;
             case FrameType::FrameTypePoint:
-              data.last().points = decode_points(frameData);
+              data->points.append(decode_points(frameData));
               break;
             default:
               break;
@@ -144,15 +141,20 @@ struct Communication::FrameImg Communication::decode_img(
   struct FrameImg frame_img;
   frame_img.draw_id = data[0];
   uint8_t img_type = data[1];  // TODO: 暂时自动配置
+  uint32_t width = *(uint32_t *)(&data[2]);
+  uint32_t height = *(uint32_t *)(&data[6]);
   QImage image;
 
   switch (img_type) {
     case ImgTypePng:
-      image.loadFromData(&data[2], data.length() - 1, nullptr);
+      image.loadFromData(&data[10], data.length() - 1, nullptr);
       break;
     case ImgTypeRgb:
       // todo: 更新帧协议
-      image = QImage(&data[2], 640, 480, QImage::Format_RGB888);
+      image = QImage(&data[10], width, height, QImage::Format_RGB888);
+      break;
+    case ImgTypeGray:
+      image = QImage(&data[10], width, height, QImage::Format_Grayscale8);
       break;
     default:
       break;
@@ -164,18 +166,18 @@ struct Communication::FrameImg Communication::decode_img(
 
 bool Communication::decode_img_points(uint8_t data, struct Frame &result) {}
 
-QVector<float> *Communication::decode_points(QVector<uint8_t> &data) {
+QVector<float> Communication::decode_points(QVector<uint8_t> &data) {
   // TODO: 这里需要确定大小端，好的做法是：先确定大小端，然后对每组数据取反
-  QVector<float> *f = new QVector<float>;
-  f->append(*(float *)&data[0]);
-  f->append(*(float *)&data[4]);
-  f->append(*(float *)&data[8]);
-  f->append(*(float *)&data[12]);
-  f->append(*(float *)&data[16]);
-  f->append(*(float *)&data[20]);
-  f->append(*(float *)&data[24]);
-  f->append(*(float *)&data[28]);
-  f->append(*(float *)&data[32]);
+  QVector<float> f;
+  f.append(*(float *)&data[0]);
+  f.append(*(float *)&data[4]);
+  f.append(*(float *)&data[8]);
+  f.append(*(float *)&data[12]);
+  f.append(*(float *)&data[16]);
+  f.append(*(float *)&data[20]);
+  f.append(*(float *)&data[24]);
+  f.append(*(float *)&data[28]);
+  f.append(*(float *)&data[32]);
   return f;
 }
 

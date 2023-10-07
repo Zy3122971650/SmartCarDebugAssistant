@@ -43,7 +43,7 @@ class SmartCarVisual : public QMainWindow {
 
   void on_horizontalScrollBar_valueChanged(int value);
 
-  void point_draw_update(void);
+  void point_draw_update(bool current);
 
   void on_pointData1_stateChanged(int arg1);
 
@@ -64,8 +64,11 @@ class SmartCarVisual : public QMainWindow {
   void on_pointData9_stateChanged(int arg1);
 
   void on_pushButton_5_clicked();
+  void update_pointScroll(void);
 
- private:
+  void on_pushButton_7_clicked();
+
+  private:
   Ui::SmartCarVisual *ui;
   Communication::communication_hal *communication;
 

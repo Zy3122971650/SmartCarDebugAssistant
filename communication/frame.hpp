@@ -6,7 +6,6 @@
 #include <QGraphicsPixmapItem>
 #include <QImage>
 #include <QVector>
-#include <communication.hpp>
 
 namespace Communication {
 
@@ -19,6 +18,7 @@ enum ImgType {
   ImgTypeUnknow = 0,
   ImgTypePng,
   ImgTypeRgb,
+  ImgTypeGray,
 };
 
 enum FrameType {
@@ -33,13 +33,19 @@ struct FrameImg {
   uint8_t draw_id;
 };
 
-bool decode(QByteArray &buff, QVector<struct Data> &data);
+struct Data {
+  QVector<QVector<struct FrameImg>> img;
+  QVector<float> *img_points;
+  QVector<QVector<float>> points;
+};
+
+bool decode(QByteArray &buff, struct Data *data);
 
 struct FrameImg decode_img(QVector<uint8_t> &data);
 
 bool decode_img_points(uint8_t data, struct Frame &result);
 
-QVector<float> *decode_points(QVector<uint8_t> &data);
+QVector<float> decode_points(QVector<uint8_t> &data);
 
 bool decode_points_continues(uint8_t data, struct Frame &result);
 
